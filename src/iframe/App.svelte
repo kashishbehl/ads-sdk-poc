@@ -2,6 +2,7 @@
 <script>
   import { onMount } from 'svelte';
   import YourComponent from '../components/YourComponent.svelte';
+  import { sendMessageToHost } from './utils'
   
   let visible = true;
   let containerElement;
@@ -12,10 +13,14 @@
   function sendHeightToParent() {
     if (containerElement) {
       const height = containerElement.scrollHeight;
-      window.parent.postMessage({
+      // window.parent.postMessage({
+      //   type: 'resize',
+      //   height: height
+      // }, '*');
+      sendMessageToHost({
         type: 'resize',
         height: height
-      }, '*');
+      });
     }
   }
 
