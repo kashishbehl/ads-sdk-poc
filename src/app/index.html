@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Widget Test Page</title>
+    <style>
+        #widget-container {
+            width: 100%;
+            max-width: 800px;
+            margin: 20px auto;
+        }
+    </style>
+</head>
+<body>
+    <p>Test Shopping Page</p>
+    <div id="widget-container"></div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const widget = new Widget({
+                height: '400px',
+                container: '#widget-container',
+            });
+
+            widget.render();
+        });
+    </script>
+</body>
+</html> 
