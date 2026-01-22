@@ -1,15 +1,44 @@
 <script>
   import ScratchCard from './ScratchCard.svelte';
+  import { sendMessageToHost } from '../iframe/utils.js';
   
   let isRevealed = false;
   let showConfetti = false;
 
+  // Coupon data that will be sent to native app
+  const couponData = {
+    couponCode: 'NIKE10OFF',
+    discount: '10%',
+    brand: 'Nike',
+    validTill: '2026-12-31',
+    minPurchase: null
+  };
+
   function handleReveal() {
     isRevealed = true;
     showConfetti = true;
+    
+    // Notify native app that coupon was revealed
+    sendMessageToHost({
+      type: 'COUPON_REVEALED',
+      data: couponData
+    });
+    
     setTimeout(() => {
       showConfetti = false;
     }, 3000);
+  }
+
+  function handleBuyNow() {
+    // Send message to Swift/RN native app
+    sendMessageToHost({
+      type: 'BUY_NOW_CLICKED',
+      data: {
+        ...couponData,
+        action: 'navigate_to_store',
+        timestamp: new Date().toISOString()
+      }
+    });
   }
 </script>
 
@@ -34,6 +63,17 @@
   <div class="footer">
     {#if isRevealed}
       <p class="revealed-text">🎉 Coupon code sent to your registered email!</p>
+      <button class="buy-now-btn" on:click={handleBuyNow}>
+        <span class="btn-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
+            <line x1="3" y1="6" x2="21" y2="6"/>
+            <path d="M16 10a4 4 0 0 1-8 0"/>
+          </svg>
+        </span>
+        <span class="btn-text">Buy Now</span>
+        <span class="btn-arrow">→</span>
+      </button>
     {:else}
       <p class="hint-text">Use your finger or cursor to scratch</p>
     {/if}
@@ -145,8 +185,83 @@
     color: #10B981;
     font-size: 13px;
     font-weight: 600;
-    margin: 0;
+    margin: 0 0 16px 0;
     animation: fadeInUp 0.5s ease-out;
+  }
+
+  .buy-now-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 28px;
+    background: linear-gradient(135deg, #FF6B35 0%, #F7931E 100%);
+    border: none;
+    border-radius: 12px;
+    color: #ffffff;
+    font-family: 'Outfit', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 
+      0 4px 15px rgba(255, 107, 53, 0.4),
+      0 0 0 0 rgba(255, 107, 53, 0.5);
+    animation: fadeInUp 0.5s ease-out 0.2s both;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .buy-now-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.2),
+      transparent
+    );
+    transition: left 0.5s ease;
+  }
+
+  .buy-now-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 
+      0 6px 20px rgba(255, 107, 53, 0.5),
+      0 0 0 0 rgba(255, 107, 53, 0.5);
+  }
+
+  .buy-now-btn:hover::before {
+    left: 100%;
+  }
+
+  .buy-now-btn:active {
+    transform: translateY(0);
+    box-shadow: 
+      0 2px 10px rgba(255, 107, 53, 0.4),
+      0 0 0 0 rgba(255, 107, 53, 0.5);
+  }
+
+  .btn-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .btn-text {
+    letter-spacing: 0.5px;
+  }
+
+  .btn-arrow {
+    font-size: 18px;
+    transition: transform 0.3s ease;
+  }
+
+  .buy-now-btn:hover .btn-arrow {
+    transform: translateX(4px);
   }
 
   @keyframes pulse {
