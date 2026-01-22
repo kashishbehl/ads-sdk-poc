@@ -66,3 +66,5 @@ export function sendMessageToHost(message) {
 // Export environment for external use
 export { environment, getEnvironment };
 
+
+
